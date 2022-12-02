@@ -2,6 +2,7 @@ package com.sfkao.pokeviewerbackend.backend.endpoint;
 
 import com.sfkao.pokeviewerbackend.backend.modelo.LoginResponse;
 import com.sfkao.pokeviewerbackend.backend.modelo.Usuario;
+import com.sfkao.pokeviewerbackend.backend.modelo.UsuarioSQL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
@@ -104,24 +105,4 @@ public class GetLogin {
         return new String(bytes,"ISO-8859-1");
     }
 
-
-    class UsuarioSQL{
-        String username;
-        String email;
-        String saltedHash;
-        String salt;
-        String apikey;
-
-        public UsuarioSQL(String username, String email, String saltedHash, String salt, String apikey) {
-            this.username = username;
-            this.email = email;
-            this.saltedHash = saltedHash;
-            this.salt = salt;
-            this.apikey = apikey;
-        }
-
-        public Usuario toUser(){
-            return new Usuario(username,email,apikey);
-        }
-    }
 }
