@@ -11,14 +11,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import javax.crypto.*;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Base64;
 import java.util.List;
 
@@ -84,9 +83,21 @@ public class GetLogin {
         String salt = new String(saltB);
         SCryptPasswordEncoder encoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8();
         String passCodedForDDBB = encoder.encode(decodedPass+salt);
-        String apikey = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-        jdbcTemplate.update("INSERT INTO Usuario(username, email, salt, saltedHash,apikey) VALUES(?,?,?,?,?)", name,email,salt,passCodedForDDBB,apikey);
-        return new LoginResponse(null,400,"Registro valido");
+        String apikey = null;
+        try {
+            apikey = generateApiKey(256);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return new LoginResponse(null, 501,"Hubo un error en el endpoint. Pruebe despues");
+        }
+
+        Usuario u = new Usuario(name,email,apikey);
+        try {
+            jdbcTemplate.update("INSERT INTO Usuario(username, email, salt, saltedHash,apikey) VALUES(?,?,?,?,?)", name, email, salt, passCodedForDDBB, apikey);
+        }catch (Exception e){
+            return new LoginResponse(null, 506,"El nombre de usuario ya esta escogido");
+        }
+        return new LoginResponse(u,400,"Registro valido");
     }
 
     private PrivateKey loadPrivateKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
@@ -104,5 +115,15 @@ public class GetLogin {
         byte[] bytes = cipher.doFinal(Base64.getDecoder().decode(toDecode));
         return new String(bytes,"ISO-8859-1");
     }
+
+    public static String generateApiKey(final int keyLen) throws NoSuchAlgorithmException {
+
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(keyLen);
+        SecretKey secretKey = keyGen.generateKey();
+        byte[] encoded = secretKey.getEncoded();
+        return new String(encoded);
+    }
+
 
 }

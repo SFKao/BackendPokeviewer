@@ -43,7 +43,6 @@ class GetLoginTest {
     @Test
     void login() throws Exception {
         LoginResponse r = login.login("test",encode("pass").getBytes(StandardCharsets.UTF_8));
-
         System.out.println(r.getCode());
         System.out.println(r.getResponse());
         assertNotNull(r.getUsuario());

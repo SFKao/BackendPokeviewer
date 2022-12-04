@@ -15,7 +15,7 @@ public class UsuarioDao {
     JdbcTemplate jdbcTemplate;
 
     public Usuario getUsuarioByApikey(String apikey){
-        if(apikey.length()!=35)
+        if(apikey.length()!=32)
             return null;
         List<UsuarioSQL> list = jdbcTemplate.query("SELECT * FROM Usuario WHERE apikey = ?", (rs, rw) -> {
             return new UsuarioSQL(rs.getString("username"),rs.getString("email"),
