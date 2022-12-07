@@ -3,6 +3,7 @@ package com.sfkao.pokeviewerbackend.backend.endpoint;
 import com.sfkao.pokeviewerbackend.backend.dao.EquipoDao;
 import com.sfkao.pokeviewerbackend.backend.dao.UsuarioDao;
 import com.sfkao.pokeviewerbackend.backend.modelo.Equipo;
+import com.sfkao.pokeviewerbackend.backend.modelo.EquipoCargado;
 import com.sfkao.pokeviewerbackend.backend.modelo.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -61,40 +62,42 @@ public class GetEquipo {
 
     @GetMapping("/get_equipo")
     @ResponseBody
-    public Equipo getEquipoById(
+    public EquipoCargado getEquipoById(
             @RequestParam(name = "id") String id
     ){
         return jdbcTemplate.query("SELECT * FROM Equipo WHERE id = ?",(rs, rowNum) ->
-                new Equipo(id, rs.getString("nombre")
-                        ,new Usuario(rs.getString("usernameAutor"),null,null)
-                        ,rs.getDate("fecha")
-                        ,rs.getInt("pokemon1")
-                        ,rs.getInt("pokemon2")
-                        ,rs.getInt("pokemon3")
-                        ,rs.getInt("pokemon4")
-                        ,rs.getInt("pokemon5")
-                        ,rs.getInt("pokemon6")),id).get(0);
+                new EquipoCargado
+                        (id,
+                        rs.getString("nombre")
+                        ,rs.getString("usernameAutor"))
+                        .cargarPokemon(rs.getInt("pokemon1"),0)
+                        .cargarPokemon(rs.getInt("pokemon2"),1)
+                        .cargarPokemon(rs.getInt("pokemon3"),2)
+                        .cargarPokemon(rs.getInt("pokemon4"),3)
+                        .cargarPokemon(rs.getInt("pokemon5"),4)
+                        .cargarPokemon(rs.getInt("pokemon6"),5)
+                ,id).get(0);
     }
 
 
     @GetMapping("/get_equipos")
     @ResponseBody
-    public List<Equipo> getEquipos(
+    public List<EquipoCargado> getEquipos(
             @RequestParam(name = "cantidad", defaultValue = "20") int cantidad,
             @RequestParam(name = "posInicial", defaultValue = "0") int posInicial
     ){
         return jdbcTemplate.query("SELECT * FROM Equipo ORDER BY fecha DESC LIMIT ?,?",
                 (rs,rowNum) ->
-                        new Equipo(rs.getString("id")
-                                , rs.getString("nombre")
-                                ,new Usuario(rs.getString("usernameAutor"),null,null)
-                                ,rs.getDate("fecha")
-                                ,rs.getInt("pokemon1")
-                                ,rs.getInt("pokemon2")
-                                ,rs.getInt("pokemon3")
-                                ,rs.getInt("pokemon4")
-                                ,rs.getInt("pokemon5")
-                                ,rs.getInt("pokemon6")
-                        ),posInicial,cantidad);
+                        new EquipoCargado
+                                (rs.getString("id"),
+                                        rs.getString("nombre")
+                                        ,rs.getString("usernameAutor"))
+                                .cargarPokemon(rs.getInt("pokemon1"),0)
+                                .cargarPokemon(rs.getInt("pokemon2"),1)
+                                .cargarPokemon(rs.getInt("pokemon3"),2)
+                                .cargarPokemon(rs.getInt("pokemon4"),3)
+                                .cargarPokemon(rs.getInt("pokemon5"),4)
+                                .cargarPokemon(rs.getInt("pokemon6"),5)
+                ,posInicial,cantidad);
     }
 }

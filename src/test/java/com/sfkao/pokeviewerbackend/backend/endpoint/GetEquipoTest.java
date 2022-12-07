@@ -15,6 +15,7 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,13 +31,14 @@ class GetEquipoTest {
     @Test
     public void registrarEquipo() throws Exception {
         Usuario u = login.login("test",encode("pass").getBytes()).getUsuario();
+        Random r = new Random();
         if(u == null) {
             System.out.println("FUCK");
             return;
         }
         System.out.println(u.getApikey());
         for(int i = 0; i < 100; i++){
-            System.out.println(equipo.saveEquipo("Prueba",u.getApikey(),1,2,3,4,5,6));
+            System.out.println(equipo.saveEquipo("Prueba",u.getApikey(),r.nextInt(1,905),r.nextInt(1,905),r.nextInt(1,905),r.nextInt(1,905),r.nextInt(1,905),r.nextInt(1,905)));
         }
     }
 
