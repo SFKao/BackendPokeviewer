@@ -84,17 +84,17 @@ public class GetEquipo {
             @RequestParam(name = "posInicial", defaultValue = "0") int posInicial
     ){
         return jdbcTemplate.query("SELECT * FROM Equipo ORDER BY fecha DESC LIMIT ?,?",
-                (rs,rowNum) ->
+                (rs, rowNum) ->
                         new Equipo(rs.getString("id")
                                 , rs.getString("nombre")
-                                ,new Usuario(rs.getString("usernameAutor"),null,null)
-                                ,rs.getDate("fecha")
-                                ,rs.getInt("pokemon1")
-                                ,rs.getInt("pokemon2")
-                                ,rs.getInt("pokemon3")
-                                ,rs.getInt("pokemon4")
-                                ,rs.getInt("pokemon5")
-                                ,rs.getInt("pokemon6")
-                        ),posInicial,cantidad);
+                                , new Usuario(rs.getString("usernameAutor"), null, null)
+                                , rs.getDate("fecha")
+                                , rs.getInt("pokemon1")
+                                , rs.getInt("pokemon2")
+                                , rs.getInt("pokemon3")
+                                , rs.getInt("pokemon4")
+                                , rs.getInt("pokemon5")
+                                , rs.getInt("pokemon6")
+                        ), posInicial, cantidad);
     }
 }
