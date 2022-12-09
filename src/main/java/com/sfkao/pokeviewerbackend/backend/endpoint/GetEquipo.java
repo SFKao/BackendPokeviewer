@@ -58,7 +58,7 @@ public class GetEquipo {
                 equipo.getPokemon5(),
                 equipo.getPokemon6());
 
-        return getEquipoById(equipo.getId(),usuario.getUsername());
+        return getEquipoById(equipo.getId(),apikey);
     }
 
     @GetMapping("/get_equipo")
@@ -68,8 +68,12 @@ public class GetEquipo {
             @RequestParam(name = "apikey",required = false) String apikey
     ){
         String username = null;
-        if(apikey != null)
-            username = usuarioDao.getUsuarioByApikey(apikey).getUsername();
+        if(apikey != null) {
+            Usuario usuarioByApikey = usuarioDao.getUsuarioByApikey(apikey);
+            if(usuarioByApikey == null)
+                return null;
+            username = usuarioByApikey.getUsername();
+        }
 
         try {
             String finalUsername = username;

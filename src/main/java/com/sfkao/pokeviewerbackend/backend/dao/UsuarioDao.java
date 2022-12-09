@@ -19,9 +19,9 @@ public class UsuarioDao {
             return new UsuarioSQL(rs.getString("username"),rs.getString("email"),
                     rs.getString("saltedHash"),rs.getString("salt"),rs.getString("apikey"));
         },apikey);
-        UsuarioSQL usuarioSQL = list.get(0);
-        if(usuarioSQL==null)
+        if(list.size()==0)
             return null;
+        UsuarioSQL usuarioSQL = list.get(0);
         return usuarioSQL.toUser();
     }
 
