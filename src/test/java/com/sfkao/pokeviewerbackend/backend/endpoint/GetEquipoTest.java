@@ -38,15 +38,10 @@ class GetEquipoTest {
         }
         System.out.println(u.getApikey());
         for(int i = 0; i < 100; i++){
-            System.out.println(equipo.saveEquipo("Prueba",u.getApikey(),r.nextInt(1,905),r.nextInt(1,905),r.nextInt(1,905),r.nextInt(1,905),r.nextInt(1,905),r.nextInt(1,905)));
+            Thread.sleep(5000);
+            System.out.println(i+" "+equipo.saveEquipo("Prueba",u.getApikey(),r.nextInt(1,905),r.nextInt(1,905),r.nextInt(1,905),r.nextInt(1,905),r.nextInt(1,905),r.nextInt(1,905)));
         }
     }
-
-    @Test
-    public void getEquipo(){
-        System.out.println(equipo.getEquipoById("0000000J"));
-    }
-
 
     private PublicKey loadPublicKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         //

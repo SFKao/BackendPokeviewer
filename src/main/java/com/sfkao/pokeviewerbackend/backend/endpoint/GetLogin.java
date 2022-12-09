@@ -57,7 +57,6 @@ public class GetLogin {
         SCryptPasswordEncoder encoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8();
         if(!encoder.matches(decodedPass+salida.get(0).salt,salida.get(0).saltedHash))
             return new LoginResponse(null, 504,"El usuario o la contraseña no son validas");
-        //TODO: que genere una api_key
         return new LoginResponse(salida.get(0).toUser(),400,"Login valido");
     }
 
@@ -70,12 +69,11 @@ public class GetLogin {
             decodedPass = decode(pass);
         } catch (NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException |
                  InvalidKeySpecException | BadPaddingException | InvalidKeyException | NoSuchProviderException e) {
-            System.out.println(e);
+            e.printStackTrace();
             return new LoginResponse(null, 501,"Hubo un error en el endpoint. Pruebe despues");
         } catch (IOException e) {
             System.out.println("ERROR LEYENDO EL ARCHIVO key.priv");
             e.printStackTrace();
-            System.out.println(e);
             return new LoginResponse(null, 501,"Hubo un error en el endpoint. Pruebe despues");
         }
         byte[] saltB = new byte[16];
@@ -95,6 +93,7 @@ public class GetLogin {
         try {
             jdbcTemplate.update("INSERT INTO Usuario(username, email, salt, saltedHash,apikey) VALUES(?,?,?,?,?)", name, email, salt, passCodedForDDBB, apikey);
         }catch (Exception e){
+            e.printStackTrace();
             return new LoginResponse(null, 506,"El nombre de usuario ya esta escogido");
         }
         return new LoginResponse(u,400,"Registro valido");
@@ -122,8 +121,21 @@ public class GetLogin {
         keyGen.init(keyLen);
         SecretKey secretKey = keyGen.generateKey();
         byte[] encoded = secretKey.getEncoded();
-        return new String(encoded);
+        return bytesToHex(encoded);
     }
+
+
+    public static String bytesToHex(byte[] bytes) {
+        char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
 
 
 }
