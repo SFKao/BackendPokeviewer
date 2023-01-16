@@ -50,7 +50,7 @@ public class GetLogin {
 
         List<UsuarioSQL> salida = jdbcTemplate.query("SELECT * FROM Usuario WHERE username = ?",new Object[] {name},
                 (rs, rowNum) -> new UsuarioSQL(rs.getString("username"),rs.getString("email"),
-                        rs.getString("saltedHash"),rs.getString("salt"),rs.getString("apikey")));
+                        rs.getString("saltedHash"),rs.getString("salt"),rs.getString("apikey"),rs.getInt("pk1"),rs.getInt("pk2"),rs.getInt("pk3")));
         if(salida.size()==0)
             return new LoginResponse(null, 503,"El usuario o la contraseña no son validas");
 

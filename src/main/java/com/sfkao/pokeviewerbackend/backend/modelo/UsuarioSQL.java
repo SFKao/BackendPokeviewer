@@ -6,6 +6,9 @@ public class UsuarioSQL{
     public String saltedHash;
     public String salt;
     public String apikey;
+    public int pk1;
+    public int pk2;
+    public int pk3;
 
     public UsuarioSQL(String username, String email, String saltedHash, String salt, String apikey) {
         this.username = username;
@@ -15,7 +18,18 @@ public class UsuarioSQL{
         this.apikey = apikey;
     }
 
+    public UsuarioSQL(String username, String email, String saltedHash, String salt, String apikey, int pk1, int pk2, int pk3) {
+        this.username = username;
+        this.email = email;
+        this.saltedHash = saltedHash;
+        this.salt = salt;
+        this.apikey = apikey;
+        this.pk1 = pk1;
+        this.pk2 = pk2;
+        this.pk3 = pk3;
+    }
+
     public Usuario toUser(){
-        return new Usuario(username,email,apikey);
+        return new Usuario(username,email,apikey,pk1,pk2,pk3);
     }
 }
