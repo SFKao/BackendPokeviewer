@@ -30,6 +30,6 @@ public class UsuarioSQL{
     }
 
     public Usuario toUser(){
-        return new Usuario(username,email,apikey,pk1,pk2,pk3);
+        return new Usuario(username,email,apikey);
     }
 }

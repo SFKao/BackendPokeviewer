@@ -12,8 +12,11 @@ public class Usuario {
     private ArrayList<Equipo> equipos;
 
     private String estadoAmistad;
+    private PokemonMinimo pk1,pk2,pk3;
 
-    private int pk1 = 0,pk2 = 0,pk3 = 0;
+    private int likes, favoritos;
+
+
 
     public Usuario(String username, String email, String apikey) {
         this.username = username;
@@ -21,23 +24,54 @@ public class Usuario {
         this.apikey = apikey;
     }
 
-    public Usuario(String username, String email, String apikey, int pk1, int pk2, int pk3) {
-        this.username = username;
-        this.email = email;
-        this.apikey = apikey;
-        this.pk1 = pk1;
-        this.pk2 = pk2;
-        this.pk3 = pk3;
-    }
 
-    public Usuario(String username, String email, String apikey, ArrayList<Equipo> equipos, String estadoAmistad, int pk1, int pk2, int pk3) {
+    public Usuario(String username, ArrayList<Equipo> equipos, String estadoAmistad) {
         this.username = username;
-        this.email = email;
-        this.apikey = apikey;
         this.equipos = equipos;
         this.estadoAmistad = estadoAmistad;
+    }
+
+    public Usuario(String username, ArrayList<Equipo> equipos, String estadoAmistad,int pk1id, int pk2id, int pk3id) {
+        this.username = username;
+        this.equipos = equipos;
+        this.estadoAmistad = estadoAmistad;
+        pk1 = PokemonMinimo.load(pk1id);
+        pk2 = PokemonMinimo.load(pk2id);
+        pk3 = PokemonMinimo.load(pk3id);
+    }
+
+    public Usuario(String username, ArrayList<Equipo> equipos, String estadoAmistad,int pk1id, int pk2id, int pk3id, int likes, int favs) {
+        this.username = username;
+        this.equipos = equipos;
+        this.estadoAmistad = estadoAmistad;
+        pk1 = PokemonMinimo.load(pk1id);
+        pk2 = PokemonMinimo.load(pk2id);
+        pk3 = PokemonMinimo.load(pk3id);
+        this.likes = likes;
+        this.favoritos = favs;
+    }
+
+    public PokemonMinimo getPk1() {
+        return pk1;
+    }
+
+    public void setPk1(PokemonMinimo pk1) {
         this.pk1 = pk1;
+    }
+
+    public PokemonMinimo getPk2() {
+        return pk2;
+    }
+
+    public void setPk2(PokemonMinimo pk2) {
         this.pk2 = pk2;
+    }
+
+    public PokemonMinimo getPk3() {
+        return pk3;
+    }
+
+    public void setPk3(PokemonMinimo pk3) {
         this.pk3 = pk3;
     }
 
@@ -95,35 +129,27 @@ public class Usuario {
         this.equipos = equipos;
     }
 
-    public int getPk1() {
-        return pk1;
-    }
-
-    public void setPk1(int pk1) {
-        this.pk1 = pk1;
-    }
-
-    public int getPk2() {
-        return pk2;
-    }
-
-    public void setPk2(int pk2) {
-        this.pk2 = pk2;
-    }
-
-    public int getPk3() {
-        return pk3;
-    }
-
-    public void setPk3(int pk3) {
-        this.pk3 = pk3;
-    }
-
     public String getEstadoAmistad() {
         return estadoAmistad;
     }
 
     public void setEstadoAmistad(String estadoAmistad) {
         this.estadoAmistad = estadoAmistad;
+    }
+
+    public int getLikes() {
+        return likes;
+    }
+
+    public void setLikes(int likes) {
+        this.likes = likes;
+    }
+
+    public int getFavoritos() {
+        return favoritos;
+    }
+
+    public void setFavoritos(int favoritos) {
+        this.favoritos = favoritos;
     }
 }
