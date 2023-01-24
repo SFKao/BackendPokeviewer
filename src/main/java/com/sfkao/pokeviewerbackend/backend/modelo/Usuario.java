@@ -1,6 +1,7 @@
 package com.sfkao.pokeviewerbackend.backend.modelo;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Usuario {
@@ -9,7 +10,7 @@ public class Usuario {
     private String email;
     private String apikey;
 
-    private ArrayList<Equipo> equipos;
+    private List<EquipoCargado> equipos;
 
     private String estadoAmistad;
     private PokemonMinimo pk1,pk2,pk3;
@@ -25,13 +26,13 @@ public class Usuario {
     }
 
 
-    public Usuario(String username, ArrayList<Equipo> equipos, String estadoAmistad) {
+    public Usuario(String username, ArrayList<EquipoCargado> equipos, String estadoAmistad) {
         this.username = username;
         this.equipos = equipos;
         this.estadoAmistad = estadoAmistad;
     }
 
-    public Usuario(String username, ArrayList<Equipo> equipos, String estadoAmistad,int pk1id, int pk2id, int pk3id) {
+    public Usuario(String username, ArrayList<EquipoCargado> equipos, String estadoAmistad, int pk1id, int pk2id, int pk3id) {
         this.username = username;
         this.equipos = equipos;
         this.estadoAmistad = estadoAmistad;
@@ -40,7 +41,7 @@ public class Usuario {
         pk3 = PokemonMinimo.load(pk3id);
     }
 
-    public Usuario(String username, ArrayList<Equipo> equipos, String estadoAmistad,int pk1id, int pk2id, int pk3id, int likes, int favs) {
+    public Usuario(String username, ArrayList<EquipoCargado> equipos, String estadoAmistad, int pk1id, int pk2id, int pk3id, int likes, int favs) {
         this.username = username;
         this.equipos = equipos;
         this.estadoAmistad = estadoAmistad;
@@ -121,11 +122,11 @@ public class Usuario {
                 '}';
     }
 
-    public ArrayList<Equipo> getEquipos() {
+    public List<EquipoCargado> getEquipos() {
         return equipos;
     }
 
-    public void setEquipos(ArrayList<Equipo> equipos) {
+    public void setEquipos(List<EquipoCargado> equipos) {
         this.equipos = equipos;
     }
 

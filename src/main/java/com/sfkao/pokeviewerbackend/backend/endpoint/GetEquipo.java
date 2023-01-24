@@ -78,7 +78,7 @@ public class GetEquipo {
         try {
             String finalUsername = username;
             return jdbcTemplate.query("SELECT * FROM Equipo WHERE id = ?", (rs, rowNum) ->
-                            cargarLikesYFavs(new EquipoCargado
+                            equipoDao.cargarLikesYFavs(new EquipoCargado
                                     (id,
                                             rs.getString("nombre")
                                             , rs.getString("usernameAutor")), finalUsername)
@@ -110,7 +110,7 @@ public class GetEquipo {
         final String finalUsername = username;
         return jdbcTemplate.query("SELECT * FROM Equipo ORDER BY fecha DESC LIMIT ?,?",
                 (rs,rowNum) ->
-                        cargarLikesYFavs(new EquipoCargado
+                        equipoDao.cargarLikesYFavs(new EquipoCargado
                                 (rs.getString("id")
                                         ,rs.getString("nombre")
                                         ,rs.getString("usernameAutor")), finalUsername)
@@ -184,28 +184,5 @@ public class GetEquipo {
     }
 
 
-    private EquipoCargado cargarLikesYFavs(EquipoCargado e,String username){
-        int countLikes = 0;
-        try{
-            countLikes = jdbcTemplate.queryForObject("SELECT COUNT(Likes.username) FROM Likes WHERE id = ?",Integer.class,e.id);
-        }catch (NullPointerException ignored){}
-        int countFavs = 0;
-        try{
-            countFavs = jdbcTemplate.queryForObject("SELECT COUNT(Favoritos.username) FROM Favoritos WHERE id = ?",Integer.class,e.id);
-        }catch (NullPointerException ignored){}
-        e.likes = countLikes;
-        e.favoritos = countFavs;
-        if(username == null)
-            return e;
-        boolean fav = false, like = false;
-        try{
-            like = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM Likes WHERE id = ? AND username = ?",Integer.class,e.id,username) != 0;
-        }catch (NullPointerException ignored){}
-        try{
-            fav = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM Favoritos WHERE id = ? AND username = ?",Integer.class,e.id,username) != 0;
-        }catch (NullPointerException ignored){}
-        e.dadoLike = like;
-        e.dadoFavoritos = fav;
-        return e;
-    }
+
 }

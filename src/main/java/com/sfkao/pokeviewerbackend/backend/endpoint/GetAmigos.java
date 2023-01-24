@@ -1,9 +1,10 @@
 package com.sfkao.pokeviewerbackend.backend.endpoint;
 
+import com.sfkao.pokeviewerbackend.backend.dao.EquipoDao;
 import com.sfkao.pokeviewerbackend.backend.dao.UsuarioDao;
-import com.sfkao.pokeviewerbackend.backend.modelo.LoginResponse;
 import com.sfkao.pokeviewerbackend.backend.modelo.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 @RestController
 public class GetAmigos {
@@ -22,6 +24,9 @@ public class GetAmigos {
 
     @Autowired
     UsuarioDao usuarioDao;
+
+    @Autowired
+    EquipoDao equipoDao;
 
     @GetMapping("/get_amigos")
     @ResponseBody
@@ -38,7 +43,9 @@ public class GetAmigos {
             amigos.add(e);
             return null;
         },usuarioByApikey.getUsername(),usuarioByApikey.getUsername());
-
+        amigos.forEach(am -> {
+            equipoDao.cargarEquipos(am, usuarioByApikey);
+        });
         return amigos;
     }
 
@@ -85,6 +92,33 @@ public class GetAmigos {
             return false;
         }
         return true;
+    }
+
+    @GetMapping("/buscar_usuario")
+    @ResponseBody
+    public Usuario buscarUsuario(
+            @RequestParam(name = "apikey",required = false) String apikey,
+            @RequestParam(name = "username",required = true) String username
+    ){
+        Usuario usuarioByApikey = usuarioDao.getUsuarioByApikey(apikey);
+        AtomicReference<Usuario> e = new AtomicReference<>();
+        jdbcTemplate.query("SELECT username, pk1, pk2,pk3 FROM Usuario WHERE username = ?", (rs, rowNum) -> {
+            e.set(new Usuario(rs.getString("username"), null, null, rs.getInt("pk1"), rs.getInt("pk2"), rs.getInt("pk3")));
+            if(usuarioByApikey!=null) {
+                try {
+                    String estado = jdbcTemplate.queryForObject("SELECT ListaAmigos.estado FROM ListaAmigos WHERE ListaAmigos.username1 = ? AND ListaAmigos.username2 = ? OR ListaAmigos.username2 = ? AND ListaAmigos.username1 = ?", String.class, usuarioByApikey.getUsername(), username, usuarioByApikey.getUsername(), username);
+                    if (estado != null) {
+                        e.get().setEstadoAmistad(estado);
+                        if (e.get().getEstadoAmistad().equals("pendiente") && !rs.getBoolean("enviada"))
+                            e.get().setEstadoAmistad("recibida");
+                    }
+                }catch (EmptyResultDataAccessException ignored){
+                }
+            }
+            return null;
+        },username);
+
+        return equipoDao.cargarEquipos(e.get(),usuarioByApikey);
     }
 
 }
