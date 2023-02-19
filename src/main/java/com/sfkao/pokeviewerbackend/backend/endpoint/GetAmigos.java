@@ -31,29 +31,27 @@ public class GetAmigos {
 
     @GetMapping("/get_amigos")
     @ResponseBody
-    public List<Usuario> getAmigosYPeticiones(
+    public List<Usuario> getAmigos(
             @RequestParam(name = "apikey",required = true) String apikey
     ){
         List<Usuario> amigos = new ArrayList<>();
         Usuario usuarioByApikey = usuarioDao.getUsuarioByApikey(apikey);
 
-        jdbcTemplate.query("SELECT  IF(SEARCHER.username = `ListaAmigos`.`username1`,true,false) AS enviada ,ListaAmigos.estado, FRIENDS.* FROM `Usuario` AS SEARCHER JOIN `ListaAmigos` ON SEARCHER.`username` = `ListaAmigos`.`username1` OR SEARCHER.`username` = `ListaAmigos`.`username2` JOIN `Usuario` AS FRIENDS ON FRIENDS.`username` = `ListaAmigos`.`username2` OR FRIENDS.`username` = `ListaAmigos`.`username1` WHERE SEARCHER.username = ? AND FRIENDS.username != ?", (rs, rowNum) -> {
+
+        jdbcTemplate.query("SELECT `ListaAmigos`.`estado` ,FRIENDS.* FROM `Usuario` AS SEARCHER JOIN `ListaAmigos` ON SEARCHER.`username` = `ListaAmigos`.`username1` OR SEARCHER.`username` = `ListaAmigos`.`username2` JOIN `Usuario` AS FRIENDS ON FRIENDS.`username` = `ListaAmigos`.`username2` OR FRIENDS.`username` = `ListaAmigos`.`username1` WHERE SEARCHER.username = ? AND FRIENDS.username != ? AND (`ListaAmigos`.`estado` = 'aceptada' OR (`ListaAmigos`.`estado`= 'pendiente' AND SEARCHER.username = `ListaAmigos`.`username1`))", (rs, rowNum) -> {
             Usuario e = new Usuario(rs.getString("username"), (ArrayList<EquipoCargado>) null, rs.getString("estado"), rs.getInt("pk1"), rs.getInt("pk2"), rs.getInt("pk3"));
-            if(e.getEstadoAmistad().equals("pendiente") &&!rs.getBoolean("enviada"))
-                e.setEstadoAmistad("recibida");
             amigos.add(e);
             return null;
         },usuarioByApikey.getUsername(),usuarioByApikey.getUsername());
         amigos.forEach(am -> {
             equipoDao.cargarEquipos(am, usuarioByApikey);
-            usuarioDao.cargarLikesYFavsDeUsuario(am);
         });
         return amigos;
     }
 
     @GetMapping("/enviar_solicitud_de_amistad")
     @ResponseBody
-    public boolean solicitarAmistad(
+    public String solicitarAmistad(
             @RequestParam(name = "apikey",required = true) String apikey,
             @RequestParam(name = "username",required = true) String username
     ){
@@ -61,22 +59,30 @@ public class GetAmigos {
         Usuario usuarioByApikey = usuarioDao.getUsuarioByApikey(apikey);
 
         AtomicBoolean yaExsiste = new AtomicBoolean(false);
+        AtomicReference<String> estado = new AtomicReference<>();
+        AtomicReference<String> reciever = new AtomicReference<>();
         jdbcTemplate.query("SELECT * FROM `ListaAmigos` WHERE (ListaAmigos.username1 = ? AND ListaAmigos.username2 = ?) OR (ListaAmigos.username2 = ? AND ListaAmigos.username1 = ?)", (rs, rowNum) -> {
             yaExsiste.set(true);
+            estado.set(rs.getString("estado"));
+            reciever.set(rs.getString("username2"));
             return null;
         },usuarioByApikey.getUsername(),username,usuarioByApikey.getUsername(),username );
 
         if(yaExsiste.get()){
-            return false;
+            if(estado.get().equals("pendiente") && reciever.get().equals(usuarioByApikey.getUsername())){
+                jdbcTemplate.update("UPDATE ListaAmigos SET estado = 'aceptada' WHERE (ListaAmigos.username1 = ? AND ListaAmigos.username2 = ?) OR (ListaAmigos.username2 = ? AND ListaAmigos.username1 = ?)",usuarioByApikey.getUsername(),username,usuarioByApikey.getUsername(),username);
+                return "aceptada";
+            }
+            return estado.get();
         }
 
         try {
             jdbcTemplate.update("INSERT INTO `ListaAmigos`(`username1`, `username2`) VALUES (?,?)",usuarioByApikey.getUsername(), username);
         }catch (Exception e){
             e.printStackTrace();
-            return false;
+            return estado.get();
         }
-        return true;
+        return "pendiente";
     }
 
     @GetMapping("/borrar_amigo")
@@ -95,6 +101,26 @@ public class GetAmigos {
         }
         return true;
     }
+
+    @GetMapping("/get_solicitudes_de_amistad")
+    @ResponseBody
+    public List<Usuario> getSolicitudes(
+            @RequestParam(name = "apikey",required = true) String apikey
+    ){
+        List<Usuario> amigos = new ArrayList<>();
+        Usuario usuarioByApikey = usuarioDao.getUsuarioByApikey(apikey);
+
+        jdbcTemplate.query("SELECT SEARCHER.* FROM `Usuario` AS SEARCHER JOIN `ListaAmigos` ON SEARCHER.`username` = `ListaAmigos`.`username1` JOIN `Usuario` AS FRIENDS ON FRIENDS.`username` = `ListaAmigos`.`username2` WHERE SEARCHER.username != ? AND FRIENDS.username = ? AND `ListaAmigos`.`estado` = 'pendiente'", (rs, rowNum) -> {
+            Usuario e = new Usuario(rs.getString("username"), (ArrayList<EquipoCargado>)  null, "pendiente", rs.getInt("pk1"), rs.getInt("pk2"), rs.getInt("pk3"));
+            amigos.add(e);
+            return null;
+        },usuarioByApikey.getUsername(),usuarioByApikey.getUsername());
+        amigos.forEach(am -> {
+            equipoDao.cargarEquipos(am, usuarioByApikey);
+        });
+        return amigos;
+    }
+
 
     @GetMapping("/buscar_usuario")
     @ResponseBody
