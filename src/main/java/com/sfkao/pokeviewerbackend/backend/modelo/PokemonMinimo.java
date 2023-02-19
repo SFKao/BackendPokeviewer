@@ -33,7 +33,7 @@ public class PokemonMinimo {
 
     private static HashMap<Integer, PokemonMinimo> pokemonMinimoMap;
 
-    public static com.sfkao.pokeviewerbackend.backend.modelo.PokemonMinimo load(int id){
+    public static PokemonMinimo load(int id){
         if(pokemonMinimoMap == null){
             pokemonMinimoMap = new HashMap<>();
             try {

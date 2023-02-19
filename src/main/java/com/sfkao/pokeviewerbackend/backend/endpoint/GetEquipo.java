@@ -123,6 +123,32 @@ public class GetEquipo {
                 ,posInicial,cantidad);
     }
 
+    @GetMapping("/get_equipo_de_amigo")
+    @ResponseBody
+    public List<EquipoCargado> getEquipoDeAmigo(
+            @RequestParam(name = "usernameamigo") String usernameAmigo,
+            @RequestParam(name = "apikey",required = false) String apikey
+    ){
+        String username = null;
+        if(apikey != null)
+            username = usuarioDao.getUsuarioByApikey(apikey).getUsername();
+
+        final String finalUsername = username;
+        return jdbcTemplate.query("SELECT * FROM Equipo WHERE usernameAutor = ? ORDER BY fecha DESC ",
+                (rs,rowNum) ->
+                        equipoDao.cargarLikesYFavs(new EquipoCargado
+                                        (rs.getString("id")
+                                                ,rs.getString("nombre")
+                                                ,rs.getString("usernameAutor")), finalUsername)
+                                .cargarPokemon(rs.getInt("pokemon1"),0)
+                                .cargarPokemon(rs.getInt("pokemon2"),1)
+                                .cargarPokemon(rs.getInt("pokemon3"),2)
+                                .cargarPokemon(rs.getInt("pokemon4"),3)
+                                .cargarPokemon(rs.getInt("pokemon5"),4)
+                                .cargarPokemon(rs.getInt("pokemon6"),5)
+                ,usernameAmigo);
+    }
+
     @GetMapping("/borrar_equipo")
     @ResponseBody
     public boolean borrarEquipo(

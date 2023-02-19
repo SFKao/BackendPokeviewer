@@ -41,6 +41,25 @@ public class Usuario {
         pk3 = PokemonMinimo.load(pk3id);
     }
 
+    public Usuario(String username, String apikey, ArrayList<EquipoCargado> equipos, String estadoAmistad, int pk1id, int pk2id, int pk3id) {
+        this.username = username;
+        this.equipos = equipos;
+        this.estadoAmistad = estadoAmistad;
+        this.apikey = apikey;
+        pk1 = PokemonMinimo.load(pk1id);
+        pk2 = PokemonMinimo.load(pk2id);
+        pk3 = PokemonMinimo.load(pk3id);
+    }
+
+    public Usuario(String username, String apikey, String email, int pk1id, int pk2id, int pk3id) {
+        this.username = username;
+        this.email = email;
+        this.apikey = apikey;
+        pk1 = PokemonMinimo.load(pk1id);
+        pk2 = PokemonMinimo.load(pk2id);
+        pk3 = PokemonMinimo.load(pk3id);
+    }
+
     public Usuario(String username, ArrayList<EquipoCargado> equipos, String estadoAmistad, int pk1id, int pk2id, int pk3id, int likes, int favs) {
         this.username = username;
         this.equipos = equipos;

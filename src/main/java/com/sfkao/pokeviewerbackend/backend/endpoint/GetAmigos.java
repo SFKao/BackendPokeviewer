@@ -2,6 +2,7 @@ package com.sfkao.pokeviewerbackend.backend.endpoint;
 
 import com.sfkao.pokeviewerbackend.backend.dao.EquipoDao;
 import com.sfkao.pokeviewerbackend.backend.dao.UsuarioDao;
+import com.sfkao.pokeviewerbackend.backend.modelo.EquipoCargado;
 import com.sfkao.pokeviewerbackend.backend.modelo.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -37,7 +38,7 @@ public class GetAmigos {
         Usuario usuarioByApikey = usuarioDao.getUsuarioByApikey(apikey);
 
         jdbcTemplate.query("SELECT  IF(SEARCHER.username = `ListaAmigos`.`username1`,true,false) AS enviada ,ListaAmigos.estado, FRIENDS.* FROM `Usuario` AS SEARCHER JOIN `ListaAmigos` ON SEARCHER.`username` = `ListaAmigos`.`username1` OR SEARCHER.`username` = `ListaAmigos`.`username2` JOIN `Usuario` AS FRIENDS ON FRIENDS.`username` = `ListaAmigos`.`username2` OR FRIENDS.`username` = `ListaAmigos`.`username1` WHERE SEARCHER.username = ? AND FRIENDS.username != ?", (rs, rowNum) -> {
-            Usuario e = new Usuario(rs.getString("username"), null, rs.getString("estado"), rs.getInt("pk1"), rs.getInt("pk2"), rs.getInt("pk3"));
+            Usuario e = new Usuario(rs.getString("username"), (ArrayList<EquipoCargado>) null, rs.getString("estado"), rs.getInt("pk1"), rs.getInt("pk2"), rs.getInt("pk3"));
             if(e.getEstadoAmistad().equals("pendiente") &&!rs.getBoolean("enviada"))
                 e.setEstadoAmistad("recibida");
             amigos.add(e);
@@ -45,6 +46,7 @@ public class GetAmigos {
         },usuarioByApikey.getUsername(),usuarioByApikey.getUsername());
         amigos.forEach(am -> {
             equipoDao.cargarEquipos(am, usuarioByApikey);
+            usuarioDao.cargarLikesYFavsDeUsuario(am);
         });
         return amigos;
     }
@@ -103,7 +105,7 @@ public class GetAmigos {
         Usuario usuarioByApikey = usuarioDao.getUsuarioByApikey(apikey);
         AtomicReference<Usuario> e = new AtomicReference<>();
         jdbcTemplate.query("SELECT username, pk1, pk2,pk3 FROM Usuario WHERE username = ?", (rs, rowNum) -> {
-            e.set(new Usuario(rs.getString("username"), null, null, rs.getInt("pk1"), rs.getInt("pk2"), rs.getInt("pk3")));
+            e.set(new Usuario(rs.getString("username"), (ArrayList<EquipoCargado>) null, null, rs.getInt("pk1"), rs.getInt("pk2"), rs.getInt("pk3")));
             if(usuarioByApikey!=null) {
                 try {
                     String estado = jdbcTemplate.queryForObject("SELECT ListaAmigos.estado FROM ListaAmigos WHERE ListaAmigos.username1 = ? AND ListaAmigos.username2 = ? OR ListaAmigos.username2 = ? AND ListaAmigos.username1 = ?", String.class, usuarioByApikey.getUsername(), username, usuarioByApikey.getUsername(), username);
