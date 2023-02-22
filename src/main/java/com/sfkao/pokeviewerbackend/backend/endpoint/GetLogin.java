@@ -93,7 +93,6 @@ public class GetLogin {
         try {
             jdbcTemplate.update("INSERT INTO Usuario(username, email, salt, saltedHash,apikey) VALUES(?,?,?,?,?)", name, email, salt, passCodedForDDBB, apikey);
         }catch (Exception e){
-            e.printStackTrace();
             return new LoginResponse(null, 506,"El nombre de usuario ya esta escogido");
         }
         return new LoginResponse(u,400,"Registro valido");
