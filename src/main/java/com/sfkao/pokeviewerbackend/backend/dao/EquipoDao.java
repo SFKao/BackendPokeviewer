@@ -7,6 +7,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 @Service
 public class EquipoDao {
 
@@ -70,6 +72,8 @@ public class EquipoDao {
     public Usuario cargarEquipos(Usuario u, Usuario requester){
 
         final String finalUsername = requester != null ? requester.getUsername() : null;
+        AtomicInteger likes = new AtomicInteger(0);
+        AtomicInteger favs = new AtomicInteger(0);
         u.setEquipos(jdbcTemplate.query("SELECT * FROM Equipo WHERE usernameAutor = ? ORDER BY fecha",
                 (rs,rowNum) ->
                         cargarLikesYFavs(new EquipoCargado
@@ -83,6 +87,10 @@ public class EquipoDao {
                                 .cargarPokemon(rs.getInt("pokemon5"),4)
                                 .cargarPokemon(rs.getInt("pokemon6"),5)
                 ,u.getUsername()));
+
+        u.getEquipos().forEach(equipoCargado -> {likes.addAndGet(equipoCargado.likes); favs.addAndGet(equipoCargado.favoritos);});
+        u.setFavoritos(favs.get());
+        u.setLikes(likes.get());
         return u;
     }
 
